@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import styles from './table.module.css';
 
-const Table = ({ headers, rows }) => {
+const Table = ({ headers = [], rows = [] }) => {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
@@ -35,10 +35,7 @@ const Table = ({ headers, rows }) => {
   );
 };
 
-Table.defaultProps = {
-  headers: [],
-  rows: [],
-};
+
 
 Table.propTypes = {
   headers: PropTypes.arrayOf(PropTypes.string),
