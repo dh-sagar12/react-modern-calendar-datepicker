@@ -3,7 +3,12 @@ import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Calendar } from './Calendar';
 import DatePickerInput from './DatePickerInput';
 import { getValueType } from './shared/generalUtils';
-import { TYPE_SINGLE_DATE, TYPE_MUTLI_DATE, TYPE_RANGE } from './shared/constants';
+import {
+  TYPE_SINGLE_DATE,
+  TYPE_MUTLI_DATE,
+  TYPE_RANGE,
+  TYPE_TIME_SELECT_SINGLE_DATE,
+} from './shared/constants';
 
 const DatePicker = ({
   value,
@@ -34,6 +39,9 @@ const DatePicker = ({
   shouldHighlightWeekends,
   renderFooter,
   customDaysClassName,
+  showTimeSelect = false,
+  TimepickerClassName = '',
+  selectedTimeClassName = '',
 }) => {
   const calendarContainerElement = useRef(null);
   const inputElement = useRef(null);
@@ -41,6 +49,10 @@ const DatePicker = ({
   const [isCalendarOpen, setCalendarVisiblity] = useState(false);
 
   useEffect(() => {
+    if (!showTimeSelect && value) {
+      const { year, month, day } = value;
+      onChange({ year, month, day });
+    }
     const handleBlur = () => {
       setCalendarVisiblity(false);
     };
@@ -52,10 +64,12 @@ const DatePicker = ({
 
   // handle input focus/blur
   useEffect(() => {
-    const valueType = getValueType(value);
+    const valueType = getValueType(value, showTimeSelect);
     if (valueType === TYPE_MUTLI_DATE) return; // no need to close the calendar
     const shouldCloseCalendar =
-      valueType === TYPE_SINGLE_DATE ? !isCalendarOpen : !isCalendarOpen && value.from && value.to;
+      valueType === TYPE_SINGLE_DATE || TYPE_TIME_SELECT_SINGLE_DATE
+        ? !isCalendarOpen
+        : !isCalendarOpen && value.from && value.to;
     if (shouldCloseCalendar) inputElement.current.blur();
   }, [value, isCalendarOpen]);
 
@@ -109,10 +123,12 @@ const DatePicker = ({
   }, [isCalendarOpen]);
 
   const handleCalendarChange = newValue => {
-    const valueType = getValueType(value);
+    const valueType = getValueType(value, showTimeSelect);
     onChange(newValue);
     if (valueType === TYPE_SINGLE_DATE) setCalendarVisiblity(false);
     else if (valueType === TYPE_RANGE && newValue.from && newValue.to) setCalendarVisiblity(false);
+    else if (valueType === TYPE_TIME_SELECT_SINGLE_DATE && newValue.hour && newValue.minute)
+      setCalendarVisiblity(false);
   };
 
   const handleKeyUp = ({ key }) => {
@@ -146,6 +162,7 @@ const DatePicker = ({
         ref={inputElement}
         formatInputText={formatInputText}
         value={value}
+        showTimeSelect={showTimeSelect}
         inputPlaceholder={inputPlaceholder}
         inputClassName={inputClassName}
         renderInput={renderInput}
@@ -185,6 +202,9 @@ const DatePicker = ({
               shouldHighlightWeekends={shouldHighlightWeekends}
               renderFooter={renderFooter}
               customDaysClassName={customDaysClassName}
+              showTimeSelect={showTimeSelect}
+              TimepickerClassName={TimepickerClassName}
+              selectedTimeClassName={selectedTimeClassName}
             />
           </div>
           <div className="DatePicker__calendarArrow" />

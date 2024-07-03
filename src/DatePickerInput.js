@@ -2,7 +2,12 @@ import React from 'react';
 
 import { useLocaleUtils, useLocaleLanguage } from './shared/hooks';
 import { putZero, getValueType } from './shared/generalUtils';
-import { TYPE_SINGLE_DATE, TYPE_RANGE, TYPE_MUTLI_DATE } from './shared/constants';
+import {
+  TYPE_SINGLE_DATE,
+  TYPE_RANGE,
+  TYPE_MUTLI_DATE,
+  TYPE_TIME_SELECT_SINGLE_DATE,
+} from './shared/constants';
 
 const DatePickerInput = React.forwardRef(
   (
@@ -14,6 +19,7 @@ const DatePickerInput = React.forwardRef(
       formatInputText = () => '',
       renderInput = () => null,
       locale,
+      showTimeSelect,
     },
     ref,
   ) => {
@@ -33,6 +39,16 @@ const DatePickerInput = React.forwardRef(
       const month = getLanguageDigits(putZero(value.month));
       const day = getLanguageDigits(putZero(value.day));
       return `${year}/${month}/${day}`;
+    };
+
+    const getSingleDayValueWithTime = () => {
+      if (!value) return '';
+      const year = getLanguageDigits(value.year);
+      const month = getLanguageDigits(putZero(value.month));
+      const day = getLanguageDigits(putZero(value.day));
+      const hour = getLanguageDigits(putZero(value.hour ? value.hour : 0));
+      const minute = getLanguageDigits(putZero(value.minute ? value.minute : 0));
+      return `${year}/${month}/${day} ${hour}:${minute}`;
     };
 
     const getDayRangeValue = () => {
@@ -57,7 +73,7 @@ const DatePickerInput = React.forwardRef(
 
     const getValue = () => {
       if (formatInputText()) return formatInputText();
-      const valueType = getValueType(value);
+      const valueType = getValueType(value, showTimeSelect);
       switch (valueType) {
         case TYPE_SINGLE_DATE:
           return getSingleDayValue();
@@ -65,6 +81,8 @@ const DatePickerInput = React.forwardRef(
           return getDayRangeValue();
         case TYPE_MUTLI_DATE:
           return getMultiDateValue();
+        case TYPE_TIME_SELECT_SINGLE_DATE:
+          return getSingleDayValueWithTime();
       }
     };
 

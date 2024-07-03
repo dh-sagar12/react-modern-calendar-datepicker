@@ -4,6 +4,8 @@ export type Day = {
   year: number;
   month: number;
   day: number;
+  hour?: number;
+  minute?: number;
 };
 
 export type DayValue = Day | null | undefined;
@@ -36,6 +38,10 @@ export interface CalendarProps<TValue extends Value> {
   calendarRangeEndClassName?: string;
   renderFooter?: React.FC;
   customDaysClassName?: CustomDayClassNameItem[];
+  TimepickerClassName?: string;
+  selectedTimeClassName?: string;
+  showTimeSelect?: boolean
+
 }
 
 export function Calendar(props: Optional<CalendarProps<DayValue>, 'value'>): React.ReactElement;

@@ -7,7 +7,12 @@ import {
   createUniqueRange,
   getValueType,
 } from '../shared/generalUtils';
-import { TYPE_SINGLE_DATE, TYPE_RANGE, TYPE_MUTLI_DATE } from '../shared/constants';
+import {
+  TYPE_SINGLE_DATE,
+  TYPE_RANGE,
+  TYPE_MUTLI_DATE,
+  TYPE_TIME_SELECT_SINGLE_DATE,
+} from '../shared/constants';
 import handleKeyboardNavigation from '../shared/keyboardNavigation';
 import { useLocaleUtils, useLocaleLanguage } from '../shared/hooks';
 
@@ -30,6 +35,7 @@ const DaysList = ({
   shouldHighlightWeekends = false,
   isQuickSelectorOpen,
   customDaysClassName,
+  showTimeSelect,
 }) => {
   const calendarSectionWrapper = useRef(null);
   const { isRtl, weekDays: weekDaysList } = useLocaleLanguage(locale);
@@ -91,7 +97,7 @@ const DaysList = ({
 
   const handleDayClick = day => {
     const getNewValue = () => {
-      const valueType = getValueType(value);
+      const valueType = getValueType(value, showTimeSelect);
       switch (valueType) {
         case TYPE_SINGLE_DATE:
           return day;
@@ -99,15 +105,28 @@ const DaysList = ({
           return getDayRangeValue(day);
         case TYPE_MUTLI_DATE:
           return getMultiDateValue(day);
+        case TYPE_TIME_SELECT_SINGLE_DATE:
+          return day;
       }
     };
     const newValue = getNewValue();
     onChange(newValue);
+
+    // if(showTimeSelect && value?.hour && value?.minute){
+    //   const new_value  =  {
+    //     ...newValue, hour: value.hour, minute: value.minute
+    //   }
+    //   onChange(new_value);
+    // }
+    // else{
+    //   onChange(newValue);
+    // }
   };
 
   const isSingleDateSelected = day => {
-    const valueType = getValueType(value);
-    if (valueType === TYPE_SINGLE_DATE) return isSameDay(day, value);
+    const valueType = getValueType(value, showTimeSelect);
+    if (valueType === TYPE_SINGLE_DATE || TYPE_TIME_SELECT_SINGLE_DATE)
+      return isSameDay(day, value);
     if (valueType === TYPE_MUTLI_DATE) return value.some(valueDay => isSameDay(valueDay, day));
   };
 
